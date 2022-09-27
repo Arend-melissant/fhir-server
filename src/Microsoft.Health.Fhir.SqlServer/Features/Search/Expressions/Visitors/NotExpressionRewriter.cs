@@ -41,7 +41,7 @@ namespace Microsoft.Health.Fhir.SqlServer.Features.Search.Expressions.Visitors
                             new SearchParamTableExpression(
                                 tableExpression.QueryGenerator,
                                 null,
-                                SearchParamTableExpressionKind.Normal));
+                                SearchParamTableExpressionKind.All));
                     }
 
                     newTableExpressions.Add((SearchParamTableExpression)tableExpression.AcceptVisitor(this, context));

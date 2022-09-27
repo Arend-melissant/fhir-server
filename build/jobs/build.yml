@@ -1,9 +1,6 @@
 parameters:
   # Default values
-  codeCoverage: false
-  componentGovernance: false
-  packageArtifacts: false
-  packageIntegrationTests: false
+  packageArtifacts: true
 
 steps:
 - task: UseDotNet@2
@@ -17,15 +14,7 @@ steps:
     command: build
     arguments: '--configuration $(buildConfiguration) -p:ContinuousIntegrationBuild=true -p:AssemblyVersion="$(assemblySemVer)" -p:FileVersion="$(assemblySemFileVer)" -p:InformationalVersion="$(informationalVersion)" -p:Version="$(majorMinorPatch)" -warnaserror'
 
-- ${{ if eq(parameters.componentGovernance, 'true') }}:
-  - task: ComponentGovernanceComponentDetection@0
-    inputs:
-      scanType: 'Register'
-      verbosity: 'Verbose'
-      alertWarningLevel: 'High'
-      failOnAlert: true
-
-- ${{ if eq(parameters.codeCoverage, 'false') }}:
+- ${{ if eq(parameters.packageArtifacts, 'false') }}:
   - task: DotNetCoreCLI@2
     displayName: 'dotnet test'
     inputs:
@@ -34,37 +23,26 @@ steps:
       arguments: '--configuration $(buildConfiguration) --no-build'
       testRunTitle: 'Unit Tests'
 
-- ${{ if eq(parameters.codeCoverage, 'true') }}:
-  - task: DotNetCoreCLI@2
+- ${{ if eq(parameters.packageArtifacts, 'true') }}:
+  - task: PowerShell@2
+    inputs:
+      targetType: 'filePath'
+      filePath: $(System.DefaultWorkingDirectory)/build/Run-Tests-WithCoverage.ps1
     displayName: 'dotnet test with coverage'
+  - task: PublishTestResults@2
     inputs:
-      command: test
-      projects: '**/*UnitTests/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --no-build --collect "XPlat Code Coverage" -s "$(build.sourcesDirectory)/CodeCoverage.runsettings" -v normal'
-      testRunTitle: 'Unit Tests'
-  - task: reportgenerator@5
-    displayName: 'aggregate code coverage'
-    condition: succeededOrFailed()
-    inputs:
-      reports: '$(Agent.TempDirectory)/*/coverage.cobertura.xml'
-      reporttypes: 'Cobertura'
-      targetdir: '$(Agent.TempDirectory)/coverage'
+      testResultsFormat: 'VSTest'
+      testResultsFiles: '**/*.trx'
+      searchFolder: '$(Agent.BuildDirectory)/TestResults/'
   - task: PublishCodeCoverageResults@1
-    displayName: 'publish code coverage'
-    condition: succeededOrFailed()
+    displayName: 'publish code coverage results'
     inputs:
       codeCoverageTool: 'Cobertura'
-      failIfCoverageEmpty: true
-      summaryFileLocation: '$(Agent.TempDirectory)/coverage/Cobertura.xml'
+      summaryFileLocation: '$(Agent.BuildDirectory)/TestResults/coverage.cobertura.xml'
   - task: PublishBuildArtifacts@1
-    displayName: 'publish Cobertura.xml'
+    displayName: 'publish coverage.json'
     inputs:
-      pathToPublish: '$(Agent.TempDirectory)/coverage/Cobertura.xml'
+      pathToPublish: '$(Agent.BuildDirectory)/TestResults/coverage.json'
       artifactName: 'IntegrationTests'
       artifactType: 'container'
-
-- ${{ if eq(parameters.packageArtifacts, 'true') }}:
   - template: package.yml
-
-- ${{ if eq(parameters.packageIntegrationTests, 'true') }}:
-  - template: package-integration-tests.yml
