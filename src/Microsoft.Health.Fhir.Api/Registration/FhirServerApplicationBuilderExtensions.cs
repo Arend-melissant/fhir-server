@@ -41,6 +41,7 @@ namespace Microsoft.AspNetCore.Builder
 
             app.UseStaticFiles();
             app.UseMvc();
+
             return app;
         }
 

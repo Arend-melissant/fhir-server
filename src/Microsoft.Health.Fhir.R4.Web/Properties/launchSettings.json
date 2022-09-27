@@ -25,13 +25,12 @@
                 "SqlServer:AllowDatabaseCreation": "true",
                 "SqlServer:SchemaOptions:AutomaticUpdatesEnabled": "true",
                 "TestAuthEnvironment:FilePath": "..//..//testauthenvironment.json",
-                "SqlServer:ConnectionString": "Server=tcp:fihrdb.database.windows.net,1433;Initial Catalog=TestFihrR4;Persist Security Info=False;User ID=calidosadmin;Password=S304kszhas7W;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+                "SqlServer:ConnectionString": "server=(local);Initial Catalog=FHIR_R4;Integrated Security=true;TrustServerCertificate=true",
                 "DataStore": "SqlServer",
                 "TaskHosting:Enabled": "true",
                 "TaskHosting:MaxRunningTaskCount": "2",
                 "FhirServer:Operations:IntegrationDataStore:StorageAccountConnection": "UseDevelopmentStorage=true",
                 "FhirServer:Operations:Import:Enabled": "true",
-                //"FhirServer:Features:SupportsUI": "true",
                 "ASPNETCORE_ENVIRONMENT": "development"
             },
             "applicationUrl": "https://localhost:44348/"
