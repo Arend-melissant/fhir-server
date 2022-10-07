@@ -27,7 +27,7 @@
         {
             "mode": "server",
             "security": {
-                "cors": false,
+                "cors": true,
                 "service": []
             },
             "resource": [],
